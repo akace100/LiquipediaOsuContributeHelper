@@ -6,9 +6,8 @@ from ossapi import TeamType
 from openpyxl import load_workbook
 import commons
 
-# Post your client id here!
-client_id = None
-client_secret = None
+client_id = commons.client_id
+client_secret = commons.client_secret
 api = commons.generate_osu_api()
 
 def getMatch_native(mpID):
@@ -124,10 +123,12 @@ def getPlayCount(game):
         countRed = 0
         countBlue = 0
         for score in game.scores:
-            if score.match.team == 'red':
-                countRed += 1
-            if score.match.team == 'blue':
-                countBlue += 1
+            # exclude in-game referee
+            if score.score > 0:
+                if score.match.team == 'red':
+                    countRed += 1
+                if score.match.team == 'blue':
+                    countBlue += 1
         if countRed != countBlue:
             #inconsist players means match invalid for count match size.
             return None
@@ -180,7 +181,6 @@ def getFullEvents(match):
             new_events = list(current_events)
             new_events.extend(events)
             events = new_events
-        print('reach_limit')
     return events
 
 def getGames(match):
@@ -193,12 +193,12 @@ def getGames(match):
 
 if __name__ == '__main__':
     mappools,modMultipliers,players,mplinks = readDatas()
-    resultFile = open("match_result.txt", 'w')
+    resultFile = open("result_match.txt", 'w')
     for mplink in mplinks:
         match = api.match(mplink)
         events = getFullEvents(match)
         match.events = events
-        print(f'https://osu.ppy.sh/community/matches/{mplink}')
+        print(f'loading https://osu.ppy.sh/community/matches/{mplink}')
         roomName = match.match.name
         games = getGames(match)
         playerCount = None

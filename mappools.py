@@ -75,7 +75,7 @@ if __name__ == '__main__':
     body = generate_Mappools(mappools)
     tail = '{{Tabs dynamic/end}}\n'
 
-    f = open("mappool_result.txt", "w", encoding='utf-8')
+    f = open("result_mappool.txt", "w", encoding='utf-8')
     f.write(head + body + tail)
     f.close()
 

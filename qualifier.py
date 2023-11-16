@@ -93,11 +93,11 @@ def createPrizeRow(qualifierResult,qualifieds_range = []):
 
 if __name__ == '__main__':
     qualifierResults = readQualifierResults()
-    # with open('qualifier_reuslt.txt','w') as resultFile:
-    #     for qualifierResult in qualifierResults:
-    #         resultRow = createQualifierResultRow(qualifierResult)
-    #         resultFile.writelines(resultRow + '\n')
-    with open('qualifierPrizePool_reuslt.txt','w') as resultFile:
+    with open('reuslt_qualifier_table.txt','w') as resultFile:
+        for qualifierResult in qualifierResults:
+            resultRow = createQualifierResultRow(qualifierResult)
+            resultFile.writelines(resultRow + '\n')
+    with open('reuslt_qualifier_prizepool.txt','w') as resultFile:
         for qualifierResult in qualifierResults:
             resultRow = createPrizeRow(qualifierResult,qualifier_slots)
             resultFile.writelines(resultRow + '\n')

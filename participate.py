@@ -15,7 +15,7 @@ def read_participates():
     is_solo_participate = ws.cell(row=2, column=1).value is None
     for i in range(2, m_row + 1):
         participate = {}
-        if is_solo_participate:
+        if not is_solo_participate:
             participate['name'] = ws.cell(row=i, column=1).value
         participate['players'] = ws.cell(row=i, column=2).value
         participate['qualifier'] = ws.cell(row=i, column=3).value

@@ -13,11 +13,17 @@ def readMapools():
         Mod = ws.cell(row=i, column=1).value
         ID = ws.cell(row=i, column=2).value
         BID = ws.cell(row=i, column=3).value
-        if Mod is None :
+        if ID is None :
             break
-        if not Mod in Mappools.keys():
-            Mappools[Mod] = []
-        Mappools[Mod].append({'id':ID , 'bid':BID})
+        if Mod is not None:
+            if not Mod in Mappools.keys():
+                Mappools[Mod] = []
+            Mappools[Mod].append({'id': ID, 'bid': BID})
+        else:
+            # For cases Mappools isn't split by Mods (early World Cup, Qualifier Stage)
+            if not '' in Mappools.keys():
+                Mappools[''] = []
+            Mappools[''].append({'id': ID, 'bid': BID})
     return Mappools
 
 def generate_MappoolsHeader(mappools):
@@ -30,14 +36,18 @@ def generate_MappoolsHeader(mappools):
         result += f'|name{i+1}={mod}\n'
     return result+tail
 
-def generate_Mappools(mappools):
+def generate_Mappools(mappools, headless = False):
     mods = list(mappools.keys())
     result = ''
     for i in range(0,len(mods)):
         mod = mods[i]
         beatmapIDs = mappools[mod]
-        head = '{{Tabs dynamic/tab|'+str(i+1)+'}}\n{{box|start|padding=1em}}\n'
-        tail = '{{box|end}}\n'
+        if not headless:
+            head = '{{Tabs dynamic/tab|' + str(i + 1) + '}}\n{{box|start|padding=1em}}\n'
+            tail = '{{box|end}}\n'
+        else:
+            head = ''
+            tail = ''
         result += head
         for beatmapID in beatmapIDs:
             id = beatmapID['id']
@@ -70,10 +80,15 @@ def get_beatmapInfo(betmapid):
 
 if __name__ == '__main__':
     mappools = readMapools()
-
-    head = generate_MappoolsHeader(mappools)
-    body = generate_Mappools(mappools)
-    tail = '{{Tabs dynamic/end}}\n'
+    mods = list(mappools.keys())
+    if mods[0] == '' and len(mods) == 1:
+        head = ''
+        body = generate_Mappools(mappools, headless=True)
+        tail = ''
+    else:
+        head = generate_MappoolsHeader(mappools)
+        body = generate_Mappools(mappools)
+        tail = '{{Tabs dynamic/end}}\n'
 
     f = open("result_mappool.txt", "w", encoding='utf-8')
     f.write(head + body + tail)

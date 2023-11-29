@@ -239,7 +239,7 @@ if __name__ == '__main__':
                     mapresults.append(mapresult)
                     lastMapID = mapID
         # write files
-        resultFile.writelines(f'========={roomName}==========\n')
+        resultFile.writelines(f'========={roomName}========== {mplink}\n')
         for i in range(0,len(mapresults)):
             mapresult = mapresults[i]
             resultFile.writelines('    |map'+str(i+1)+'={{Map|map='+mapresult['map']+'' \

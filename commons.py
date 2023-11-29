@@ -23,3 +23,15 @@ def clean_string(string_to_clean: str):
     for target in targets:
         string_to_clean = string_to_clean.replace(target, "")
     return string_to_clean
+
+
+def get_player_osuflag(player_id):
+    api = generate_osu_api()
+    player_country = ''
+    try:
+        player_country = api.user(player_id).country_code
+    except Exception as e:
+        print('error finding player\'s osu flag:' + player_id)
+        print(e)
+    return player_country
+

@@ -42,6 +42,11 @@ def readDatas():
     wb = load_workbook(filename='sheets/match_result.xlsx', read_only=True)
     ws = wb.active
     m_row = ws.max_row
+    if m_row == None:
+        # we will defined an default max mappools size if we couldn't
+        # get max_row when reading , usually by xlsx files saved by 3rd
+        # software like "google sheet"
+        m_row = 150
     columnIndex = {
         'mappool_id' : 2,
         'mappool_bid' : 3,

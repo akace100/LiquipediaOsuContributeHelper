@@ -10,6 +10,11 @@ def read_participates():
     wb = load_workbook(filename='sheets/participate.xlsx', read_only=True)
     ws = wb.active
     m_row = ws.max_row
+    if m_row == None:
+        # we will defined an default max mappools size if we couldn't
+        # get max_row when reading , usually by xlsx files saved by 3rd
+        # software like "google sheet"
+        m_row = 400
     participates = []
     # Solo participate modes on if no team name.
     is_solo_participate = ws.cell(row=2, column=1).value is None
@@ -18,6 +23,10 @@ def read_participates():
         if not is_solo_participate:
             participate['name'] = ws.cell(row=i, column=1).value
         participate['players'] = ws.cell(row=i, column=2).value
+        if participate['players'] is None:
+            break
+        if isinstance(participate['players'],int):
+            participate['players'] = str(participate['players'])
         participate['qualifier'] = ws.cell(row=i, column=3).value
         participates.append(participate)
     return participates, is_solo_participate
@@ -50,20 +59,28 @@ def generateTeamCardInfo(team):
     result += '}}\n'
     return result
 
+def generateSoloInfo(player_id):
+    print('generate ' + player_id + 's info...')
+    result = '     |{{1Opponent|'
+    player_id_clean = commons.clean_clan_tags(player_id)
+    flag = commons.get_player_osuflag(player_id)
+    result += player_id_clean + '|flag=' + flag + '}}'
+    if '[' in player_id_clean and ']' in player_id_clean:
+        parsed_player_id = player_id_clean.replace("[", "(").replace("]", ")")
+        result += f'|link={parsed_player_id}'
+    return result
+
+
 if __name__ == '__main__':
     participates, is_solo_participate = read_participates()
     if is_solo_participate:
         players = participates
-        # result = ''
-        # for i in range(0, len(teams)):
-        #     # print('generate ' + teams[i]['name'] + 's info...')
-        #     result += generateTeamCardInfo(teams[i])
-        #     if i < len(teams):
-        #         result += '\n'
-        #
-        # f = open("teamcardresult_seprate.txt", "w", encoding='utf-8')
-        # f.write(result)
-        # f.close()
+        result = ''
+        for i in range(0,len(players)):
+            player_id = players[i]['players']
+            result += generateSoloInfo(player_id)
+            if i < len(players):
+                result += '\n'
 
     else:
         teams = participates
@@ -74,7 +91,7 @@ if __name__ == '__main__':
             if i < len(teams):
                 result += '\n'
 
-        f = open("teamcardresult_seprate.txt", "w", encoding='utf-8')
-        f.write(result)
-        f.close()
+    f = open("result_participate.txt", "w", encoding='utf-8')
+    f.write(result)
+    f.close()
 

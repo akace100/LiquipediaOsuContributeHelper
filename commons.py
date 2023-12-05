@@ -7,10 +7,9 @@ client_secret = None
 def generate_osu_api():
     return Ossapi(client_id, client_secret)
 
-
 def clean_clan_tags(player_name: str):
     tags = ['[GB]', '[Crz]', '[Paw]', '[LS]', '[Mom]', 'ERA ', '[RS]', '[KN]', '[RUE]',
-            '[MR]', '[GS]', '[HD]', '[SPNG]', '[Mom]', '[TMEO]']
+            '[MR]', '[GS]', '[HD]', '[SPNG]', '[Mom]', '[TMEO]', '[MY]']
     for tag in tags:
         # assume clan tags always at the beginning of the id.
         if player_name.startswith(tag):

@@ -9,6 +9,11 @@ def readMapools():
     wb = load_workbook(filename='sheets/mappools.xlsx', read_only=True)
     ws = wb.active
     m_row = ws.max_row
+    if m_row == None:
+        # we will defined an default max mappools size if we couldn't
+        # get max_row when reading , usually by xlsx files saved by 3rd
+        # software like "google sheet"
+        m_row = 50
     for i in range(2, m_row + 1):
         Mod = ws.cell(row=i, column=1).value
         ID = ws.cell(row=i, column=2).value

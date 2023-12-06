@@ -28,6 +28,7 @@ def read_participates():
         if isinstance(participate['players'],int):
             participate['players'] = str(participate['players'])
         participate['qualifier'] = ws.cell(row=i, column=3).value
+        participate['link'] = ws.cell(row=i, column=4).value
         participates.append(participate)
     return participates, is_solo_participate
 
@@ -35,6 +36,8 @@ def read_participates():
 def generateTeamCardInfo(team):
     result = '{{TeamCard\n' + \
              '|team=' + team['name'] + '\n'
+    if not team['link'] is None:
+        result += '|link=' + team['link'] + '\n'
     players = commons.clean_string(team['players']).split(',')
     for i in range(0,len(players)):
         player = str(players[i])

@@ -39,6 +39,7 @@ def readDatas():
     modMultipliers = []
     players = []
     mplinks = []
+    settings = {}
     wb = load_workbook(filename='sheets/match_result.xlsx', read_only=True)
     ws = wb.active
     m_row = ws.max_row
@@ -100,7 +101,9 @@ def readDatas():
         # stop reading unused information
         if (readMark == 0):
             break
-    return mappools,modMultipliers,players,mplinks
+    settings['swap_teams'] = ws['O4'].value
+    return mappools,modMultipliers,players,mplinks,settings
+
 
 #RoomName Following Format: {Match Abbr}:({TeamA}) vs ({TeamsB})
 #Not considering any player / teams has ) vs (
@@ -197,10 +200,16 @@ def getGames(match):
     return games
 
 if __name__ == '__main__':
-    mappools,modMultipliers,players,mplinks = readDatas()
+    mappools,modMultipliers,players,mplinks,settings = readDatas()
     resultFile = open("result_match.txt", 'w')
     for mplink in mplinks:
-        match = api.match(mplink)
+        try:
+            match = api.match(mplink)
+        except ValueError as e:
+            print('Invalid mplink : ' + str(mplink))
+            resultFile.writelines(f'Invalid mplink {mplink}\n')
+            resultFile.writelines('\n')
+            continue
         events = getFullEvents(match)
         match.events = events
         print(f'loading https://osu.ppy.sh/community/matches/{mplink}')
@@ -230,6 +239,8 @@ if __name__ == '__main__':
             if (redScore is None or blueScore is None):
                 print(f'broken match detected in mnatch : {roomName}')
             else:
+                if settings['swap_teams']:
+                    blueScore , redScore = redScore, blueScore
                 mapresult = {
                     'map': mapID,
                     'mode': '',  # leave for future liquipedia updates

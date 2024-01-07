@@ -12,7 +12,7 @@ mappoolIDs = ['rc1','rc2','hb1','ln1','rc3','rc4','ln2','hb2']
 qualifier_slots = [(1,16)]
 
 def readQualifierResults():
-    wb = load_workbook(filename='sheets/qualifier.xlsx', read_only=True)
+    wb = load_workbook(filename='sheets/qualifier_legacy.xlsx', read_only=True)
     ws = wb.active
     m_row = ws.max_row
     if m_row == None:

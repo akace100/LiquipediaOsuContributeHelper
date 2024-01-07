@@ -237,7 +237,7 @@ if __name__ == '__main__':
             redScore , blueScore = getScore(game,modMultipliers)
             # exclude broken match
             if (redScore is None or blueScore is None):
-                print(f'broken match detected in mnatch : {roomName}')
+                print(f'broken match detected in match : {roomName}')
             else:
                 if settings['swap_teams']:
                     blueScore , redScore = redScore, blueScore

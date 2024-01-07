@@ -30,7 +30,9 @@ def get_player_osuflag(player_id):
     try:
         player_country = api.user(player_id).country_code
     except Exception as e:
-        print('error finding player\'s osu flag:' + player_id)
+        if not isinstance(player_id, str):
+            player_id = str(player_id)
+            print('error finding player\'s osu flag:' + player_id)
         print(e)
     return player_country
 

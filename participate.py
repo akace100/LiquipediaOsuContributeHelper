@@ -29,6 +29,7 @@ def read_participates():
             participate['players'] = str(participate['players'])
         participate['qualifier'] = ws.cell(row=i, column=3).value
         participate['link'] = ws.cell(row=i, column=4).value
+        participate['image'] = ws.cell(row=i, column=5).value
         participates.append(participate)
     return participates, is_solo_participate
 
@@ -38,9 +39,14 @@ def generateTeamCardInfo(team):
              '|team=' + team['name'] + '\n'
     if not team['link'] is None:
         result += '|link=' + team['link'] + '\n'
+    if not team['image'] is None:
+        result += '|image=' + team['image'] + '\n'
     players = commons.clean_string(team['players']).split(',')
     for i in range(0,len(players)):
         player = str(players[i])
+        # remove possible head space
+        while player.startswith(' '):
+            player = player[1:]
         print('generate ' + player + '\'s info...')
         try:
             player_Country = api.user(player).country_code

@@ -40,7 +40,7 @@ def readDatas():
     players = []
     mplinks = []
     settings = {}
-    wb = load_workbook(filename='sheets/match_result.xlsx', read_only=True)
+    wb = load_workbook(filename='sheets/match_result.xlsm', read_only=True)
     ws = wb.active
     m_row = ws.max_row
     if m_row == None:

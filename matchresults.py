@@ -170,9 +170,9 @@ def getScore(game,modMultipliers):
                     finalScore = finalScore * modMultiplier['multiplier']
             # assume no invalid players in rooms
             if score.match.team == 'red':
-                redScore += score.score
+                redScore += finalScore
             if score.match.team == 'blue':
-                blueScore += score.score
+                blueScore += finalScore
     return redScore, blueScore
 
 def getFullEvents(match):

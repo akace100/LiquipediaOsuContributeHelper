@@ -29,7 +29,7 @@ def read_data():
                 break
         cond_headers.append(cond_header)
 
-    for i in range (0,11):
+    for i in range (0,16):
         map_header = ws.cell(row=5, column=12 + i * 2).value
         if map_header is None:
             break
@@ -58,9 +58,11 @@ def read_data():
         for j in range(0,len(map_headers)):
             map_score = ws.cell(row=i, column=12 + j*2 + 1).value
             map_place = ws.cell(row=i, column=12 + j*2).value
-            if map_score is None or map_place is None:
+            if map_score is None:
                 break
             else:
+                if map_place is None:
+                    map_place = ''
                 map = {
                     'score': map_score,
                     'place': map_place
@@ -145,7 +147,7 @@ def draw_qualifier_table_tail():
 if __name__ == '__main__':
     config, cond_headers, map_headers, participates = read_data()
     participates_count = len(participates)
-    with open('reuslt_qualifier.txt','w') as resultFile:
+    with open('reuslt_qualifier.txt','w',encoding='UTF-8') as resultFile:
         header = draw_qualifier_table_header(config, cond_headers, map_headers)
         tail = draw_qualifier_table_tail()
         resultFile.writelines(header + '\n')

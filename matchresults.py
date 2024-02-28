@@ -160,7 +160,7 @@ def getScore(game,modMultipliers):
             if score.match.slot == 1:
                 blueScore = score.score
     # for teamVS tournaments (include 1v1 teams)
-    if game.team_type == TeamType.TEAM_VS:
+    if (game.team_type == TeamType.TEAM_VS) or (game.team_type == TeamType.TAG_TEAM_VS):
         redScore = 0
         blueScore = 0
         for score in game.scores:

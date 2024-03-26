@@ -201,7 +201,7 @@ def getGames(match):
 
 if __name__ == '__main__':
     mappools,modMultipliers,players,mplinks,settings = readDatas()
-    resultFile = open("result_match.txt", 'w')
+    resultFile = open("result_match.txt", 'w',encoding='UTF-8')
     for mplink in mplinks:
         try:
             match = api.match(mplink)
@@ -217,7 +217,9 @@ if __name__ == '__main__':
         games = getGames(match)
         playerCount = None
         lastMapID = ''
+        last_teamwin = ''
         mapresults = []
+        red_games_win, blue_games_win = 0,0
         for game in games:
             # TODO: consider old matches that maps have been removed
             mapID = findmapIDbyBID(game.beatmap_id,mappools)
@@ -230,9 +232,8 @@ if __name__ == '__main__':
                 playerCount = getPlayCount(game)
             else:
                 if ('TB' in mapID):
-                    tbPlayerCount = getPlayCount(game)
                     # exclude "TB for fun".
-                    if (tbPlayerCount != playerCount):
+                    if (red_games_win != blue_games_win):
                         continue
             redScore , blueScore = getScore(game,modMultipliers)
             # exclude broken match
@@ -248,12 +249,22 @@ if __name__ == '__main__':
                     'score2': f'{blueScore:,}',
                     'winner': '1' if (redScore > blueScore) else '2'
                 }
-                # for rematch happen, only record last one
+                # for rematch happen, only record last one, so the former result will be revent
                 if lastMapID == mapID:
                     mapresults[-1] = mapresult
+                    if last_teamwin == 'red':
+                        red_games_win -= 1
+                    if last_teamwin == 'blue':
+                        blue_games_win -= 1
                 else:
                     mapresults.append(mapresult)
                     lastMapID = mapID
+                if (redScore > blueScore):
+                    red_games_win += 1
+                    last_teamwin = 'red'
+                else:
+                    blue_games_win += 1
+                    last_teamwin = 'blue'
         # write files
         resultFile.writelines(f'========={roomName}========== {mplink}\n')
         for i in range(0,len(mapresults)):

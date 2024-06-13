@@ -1,3 +1,5 @@
+import re
+
 import requests
 from ossapi import Mod
 from ossapi import Ossapi
@@ -102,6 +104,7 @@ def readDatas():
         if (readMark == 0):
             break
     settings['swap_teams'] = ws['O4'].value
+    settings['win_conditions'] = ws['O7'].value
     return mappools,modMultipliers,players,mplinks,settings
 
 
@@ -144,35 +147,57 @@ def getPlayCount(game):
             return countRed
 
 # input:
+def get_player_slot(red_player_id,blue_player_id):
+    return 0,1
+
+def get_player_userid(room_name):
+    red_player_userid = 0
+    blue_player_userid = 0
+    usernames = re.search(r'' , room_name)
+    print(usernames.group(1),usernames.group(2))
+    return red_player_userid,blue_player_userid
+
+# input:
 # possible ruleset = {{Mod} NF = x1.0} etc.
 # return {redScore= blueScore=}
-def getScore(game,modMultipliers):
+def getScore(game,modMultipliers,determinedByID = False,accuracyScore = False):
     redScore = None
     blueScore = None
-    # For 1v1 tourrnaments
+    # For 1v1 tournaments
     if game.team_type == TeamType.HEAD_TO_HEAD:
         for score in game.scores:
-            # assume red player must stand in firstSlot
-            # blue player must stand in secondSlot
-            # ignore other scores.
-            if score.match.slot == 0:
-                redScore = score.score
-            if score.match.slot == 1:
-                blueScore = score.score
+            # common way : red player = slot 0; blue player = slot 1
+            if determinedByID:
+                if score.user_id == game.red_player_userid:
+                    redScore = score.score if not accuracyScore else (score.accuracy * 100)
+                if score.user_id == game.blue_player_userid:
+                    blueScore = score.score if not accuracyScore else (score.accuracy * 100)
+            else:
+                if score.match.slot == 0:
+                    redScore = score.score if not accuracyScore else (score.accuracy * 100)
+                if score.match.slot == 1:
+                    blueScore = score.score if not accuracyScore else (score.accuracy * 100)
     # for teamVS tournaments (include 1v1 teams)
     if (game.team_type == TeamType.TEAM_VS) or (game.team_type == TeamType.TAG_TEAM_VS):
         redScore = 0
         blueScore = 0
+        redPlayers = 0
+        bluePlayers = 0
         for score in game.scores:
-            finalScore = score.score
+            finalScore = score.score if not accuracyScore else score.accuracy
             for modMultiplier in modMultipliers:
                 if Mod(modMultiplier['mod']) in score.mods:
                     finalScore = finalScore * modMultiplier['multiplier']
             # assume no invalid players in rooms
             if score.match.team == 'red':
                 redScore += finalScore
+                redPlayers += 1
             if score.match.team == 'blue':
                 blueScore += finalScore
+                bluePlayers += 1
+        if accuracyScore:
+            redScore = (redScore * 100) / redPlayers
+            blueScore = (blueScore * 100) / bluePlayers
     return redScore, blueScore
 
 def getFullEvents(match):
@@ -214,12 +239,14 @@ if __name__ == '__main__':
         match.events = events
         print(f'loading https://osu.ppy.sh/community/matches/{mplink}')
         roomName = match.match.name
+        # red_player_userid, blue_player_userid = get_player_userid(match.match.name)
         games = getGames(match)
         playerCount = None
         lastMapID = ''
         last_teamwin = ''
         mapresults = []
         red_games_win, blue_games_win = 0,0
+        accuracyWin = settings['win_conditions'] == "ACC"
         for game in games:
             # TODO: consider old matches that maps have been removed
             mapID = findmapIDbyBID(game.beatmap_id,mappools)
@@ -235,7 +262,7 @@ if __name__ == '__main__':
                     # exclude "TB for fun".
                     if (red_games_win != blue_games_win):
                         continue
-            redScore , blueScore = getScore(game,modMultipliers)
+            redScore , blueScore = getScore(game,modMultipliers,accuracyScore=accuracyWin)
             # exclude broken match
             if (redScore is None or blueScore is None):
                 print(f'broken match detected in match : {roomName}')
@@ -245,8 +272,8 @@ if __name__ == '__main__':
                 mapresult = {
                     'map': mapID,
                     'mode': '',  # leave for future liquipedia updates
-                    'score1': f'{redScore:,}',
-                    'score2': f'{blueScore:,}',
+                    'score1': f'{redScore:,}' if not accuracyWin else "%.2f" % redScore + "%",
+                    'score2': f'{blueScore:,}'if not accuracyWin else "%.2f" % blueScore + "%",
                     'winner': '1' if (redScore > blueScore) else '2'
                 }
                 # for rematch happen, only record last one, so the former result will be revent

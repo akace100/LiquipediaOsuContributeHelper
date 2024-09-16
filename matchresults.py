@@ -206,7 +206,7 @@ def getFullEvents(match):
     events = current_events
     first_event_ID = events[0].id
     while (len(current_events) == 100):
-        current_events = api.match(mplink,before=first_event_ID).events
+        current_events = api.match(mplink,before_id=first_event_ID).events
         if len(current_events) == 0:
             break
         else:
@@ -296,7 +296,7 @@ if __name__ == '__main__':
         resultFile.writelines(f'========={roomName}========== {mplink}\n')
         for i in range(0,len(mapresults)):
             mapresult = mapresults[i]
-            resultFile.writelines('    |map'+str(i+1)+'={{Map|map='+mapresult['map']+'' \
+            resultFile.writelines('  |map'+str(i+1)+'={{Map|map='+mapresult['map']+'' \
                                   '|mode='+mapresult['mode']+'|score1='+mapresult['score1']+''\
                                   '|score2='+mapresult['score2']+'|winner='+mapresult['winner']+'}}\n')
         resultFile.writelines('\n')

@@ -206,7 +206,7 @@ def getFullEvents(match):
     events = current_events
     first_event_ID = events[0].id
     while (len(current_events) == 100):
-        current_events = api.match(mplink,before=first_event_ID).events
+        current_events = api.match(mplink,before_id=first_event_ID).events
         if len(current_events) == 0:
             break
         else:

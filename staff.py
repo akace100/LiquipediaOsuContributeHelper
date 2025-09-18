@@ -15,15 +15,16 @@ def read_staffs():
     for i in range(3, m_row + 1):
         position = ws.cell(row=i, column=2).value
         if position is None:
-            # incase possible staff list shorter that Note
+            # In case the staff list is shorter than the sheet
             break
-        participates = ws.cell(row=i, column=3).value.split(',')
-        if position not in staffs.keys():
+        cell_value = ws.cell(row=i, column=3).value
+        if cell_value is None or str(cell_value).strip() == "":
+            participates = []   # no one listed
+        else:
+            participates = [p.strip() for p in str(cell_value).split(',') if p.strip()]
+        if position not in staffs:
             staffs[position] = []
-        for participate in participates:
-            # remove possible duplicated space (not in id's ,might start with?)
-            # participate = participate.replace(" ","")
-            staffs[position].append(participate)
+        staffs[position].extend(participates)   # add all participants for that position
     return staffs
 
 def generate_broadcaster_card(position,staffs):
@@ -31,7 +32,7 @@ def generate_broadcaster_card(position,staffs):
     for i in range(0, len(staffs)):
         staff_id = staffs[i]
         staff_flag = commons.get_player_osuflag(staff_id)
-        result += f'|b{i}={commons.clean_clan_tags(staff_id)}|b{i}flag={staff_flag}\n'
+        result += f'|b{i+1}={commons.clean_clan_tags(staff_id)}|b{i+1}flag={staff_flag}\n'
     result += '}}\n'
     return result
 
